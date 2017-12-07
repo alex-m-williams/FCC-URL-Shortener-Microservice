@@ -44,13 +44,21 @@ app.route('/')
     })
 
 app.route('/12345')
-  .g
+  .get(function(req, res) {
+  res.writeHead(302, {'Location': 'https://www.google.com'});
+  res.end();
+})
 
 app.route('/new')
   .get((req, res) => {
   mongo.connect(url, (err, db) => {
+    if (!err) {
+      console.log('hi');
+      console.log(db);
+    }
    if (err) throw err;
    let docs = db.collection('urls');
+    console.log(docs);
    let obj = {originalURL: "www.google.com", shortURL: "https://safe-dash.glitch.me/12345"};
    docs.insert(obj, (err, data) => {
        if (err) throw err;
