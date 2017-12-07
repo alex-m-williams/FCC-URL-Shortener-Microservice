@@ -54,20 +54,20 @@ app.route('/new')
   
 });
 
-mongo.connect(url, (err, db) => {
+mongo.connect(url, (err, database) => {
     if (!err) {
       console.log('hi');
-      console.log(db);
     }
    if (err) throw err;
-   let docs = db.collection('urls');
+  const myAwesomeDB = database.db('urlshortener')
+   let docs = myAwesomeDB.collection('urls');
    let obj = {originalURL: "www.google.com", shortURL: "https://safe-dash.glitch.me/12345"};
    docs.insert(obj, (err, data) => {
        if (err) throw err;
        console.log(JSON.stringify(obj));
    });
    
-   db.close();
+   database.close();
 });
 
 // Respond not found to all the wrong routes
