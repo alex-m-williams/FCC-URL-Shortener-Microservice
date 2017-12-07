@@ -51,14 +51,16 @@ app.route('/12345')
 
 app.route('/new')
   .get((req, res) => {
-  mongo.connect(url, (err, db) => {
+  
+});
+
+mongo.connect(url, (err, db) => {
     if (!err) {
       console.log('hi');
       console.log(db);
     }
    if (err) throw err;
    let docs = db.collection('urls');
-    console.log(docs);
    let obj = {originalURL: "www.google.com", shortURL: "https://safe-dash.glitch.me/12345"};
    docs.insert(obj, (err, data) => {
        if (err) throw err;
@@ -66,7 +68,6 @@ app.route('/new')
    });
    
    db.close();
-});
 });
 
 // Respond not found to all the wrong routes
