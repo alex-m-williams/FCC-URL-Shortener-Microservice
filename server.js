@@ -8,7 +8,11 @@
 var fs = require('fs');
 var express = require('express');
 var app = express();
-//mongodb://fcc:fcc@ds133746.mlab.com:33746/urlshortener
+
+const url = 'mongodb://fcc:fcc@ds133746.mlab.com:33746/urlshortener';
+const mongo = require('mongodb').MongoClient;
+
+
 
 if (!process.env.DISABLE_XORIGIN) {
   app.use(function(req, res, next) {
@@ -38,6 +42,24 @@ app.route('/')
     .get(function(req, res) {
 		  res.sendFile(process.cwd() + '/views/index.html');
     })
+
+app.route('/12345')
+  .g
+
+app.route('/new')
+  .get((req, res) => {
+  mongo.connect(url, (err, db) => {
+   if (err) throw err;
+   let docs = db.collection('urls');
+   let obj = {originalURL: "www.google.com", shortURL: "https://safe-dash.glitch.me/12345"};
+   docs.insert(obj, (err, data) => {
+       if (err) throw err;
+       console.log(JSON.stringify(obj));
+   });
+   
+   db.close();
+});
+});
 
 // Respond not found to all the wrong routes
 app.use(function(req, res, next){
