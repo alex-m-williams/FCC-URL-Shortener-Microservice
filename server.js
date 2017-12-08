@@ -51,26 +51,32 @@ app.route('/12345')
   res.end();
 })
 
-app.route('/new')
+app.route('/new/*')
   .get((req, res) => {
   let urlRequest = url.parse(req.url, true);
   let pathName = urlRequest.pathname;
-  console.log(pathName);
+  let newRoutePath = "/new/";
+  let ogURL = pathName.slice(pathName.indexOf(newRoutePath) + newRoutePath.length, pathName.length);
+  console.log(ogURL);
+  let obj = {originalURL: ogURL, shortURL: "https://safe-dash.glitch.me/12345"};
+
   mongo.connect(dburl, (err, database) => {
-    if (!err) {
-      console.log('hi');
-    }
-   if (err) throw err;
-  const myAwesomeDB = database.db('urlshortener')
-   let docs = myAwesomeDB.collection('urls');
-   let obj = {originalURL: "www.google.com", shortURL: "https://safe-dash.glitch.me/12345"};
-   // docs.insert(obj, (err, data) => {
-   //     if (err) throw err;
-   //     console.log(JSON.stringify(obj));
-   // });
-   
-   database.close();
-});
+      if (!err) {
+        console.log('hi');
+      }
+     if (err) throw err;
+    const myAwesomeDB = database.db('urlshortener')
+     let docs = myAwesomeDB.collection('urls');
+     // docs.insert(obj, (err, data) => {
+     //     if (err) throw err;
+     //     console.log(JSON.stringify(obj));
+     // });
+
+     database.close();
+  });
+  res.writeHead(200, {'Content-Type': 'application/json' });
+  res.write(JSON.stringify(jsonTime));
+  res.end();
 });
 
 
