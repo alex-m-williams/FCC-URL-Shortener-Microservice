@@ -8,8 +8,10 @@
 var fs = require('fs');
 var express = require('express');
 var app = express();
+const url = require('url');
 
-const url = 'mongodb://fcc:fcc@ds133746.mlab.com:33746/urlshortener';
+
+const dburl = 'mongodb://fcc:fcc@ds133746.mlab.com:33746/urlshortener';
 const mongo = require('mongodb').MongoClient;
 
 
@@ -51,10 +53,10 @@ app.route('/12345')
 
 app.route('/new')
   .get((req, res) => {
-  
-});
-
-mongo.connect(url, (err, database) => {
+  let urlRequest = url.parse(req.url, true);
+  let pathName = urlRequest.pathname;
+  console.log(pathName);
+  mongo.connect(dburl, (err, database) => {
     if (!err) {
       console.log('hi');
     }
@@ -62,13 +64,16 @@ mongo.connect(url, (err, database) => {
   const myAwesomeDB = database.db('urlshortener')
    let docs = myAwesomeDB.collection('urls');
    let obj = {originalURL: "www.google.com", shortURL: "https://safe-dash.glitch.me/12345"};
-   docs.insert(obj, (err, data) => {
-       if (err) throw err;
-       console.log(JSON.stringify(obj));
-   });
+   // docs.insert(obj, (err, data) => {
+   //     if (err) throw err;
+   //     console.log(JSON.stringify(obj));
+   // });
    
    database.close();
 });
+});
+
+
 
 // Respond not found to all the wrong routes
 app.use(function(req, res, next){
