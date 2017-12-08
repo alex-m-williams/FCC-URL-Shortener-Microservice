@@ -98,8 +98,6 @@ app.route('/new/*')
   console.log(ogURL);
   routes += 1;
   let obj = {originalURL: ogURL, shortURL: "https://safe-dash.glitch.me/" + routes, route: routes};
-
-
   mongo.connect(dburl, (err, database) => {
      if (err) throw err;
     const myAwesomeDB = database.db('urlshortener')
