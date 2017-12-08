@@ -41,6 +41,21 @@ app.route('/_api/package.json')
   });
 
 let routes = 0;
+mongo.connect(dburl, (err, database) => {
+     if (err) throw err;
+    const myAwesomeDB = database.db('urlshortener')
+     let docs = myAwesomeDB.collection('urls');
+    let highestRoute = 0;
+    docs.find({}).toArray((err, result) => {
+      for (let i = 0; i < result.length; i++ ){
+         if (result[i].route > highestRoute) {
+           highestRoute = result[i].route;
+         }
+       }
+      routes = highestRoute;
+    });
+  database.close();
+});
 
 app.route('/')
     .get(function(req, res) {
@@ -62,7 +77,8 @@ app.route('/[0-9]*')
        if (err) throw err;
        for (let i = 0; i < result.length; i++ ){
          if (result[i].route == routeNum) {
-           res.writeHead(302, {'Location': result[i].originalURL});
+           // res.writeHead(302, {'Location': result[i].originalURL});
+           res.redirect(result[i].originalURL);
             res.end();
          }
        }
@@ -81,25 +97,18 @@ app.route('/new/*')
   let ogURL = pathName.slice(pathName.indexOf(newRoutePath) + newRoutePath.length, pathName.length);
   console.log(ogURL);
   routes += 1;
+  let obj = {originalURL: ogURL, shortURL: "https://safe-dash.glitch.me/" + routes, route: routes};
+
 
   mongo.connect(dburl, (err, database) => {
      if (err) throw err;
     const myAwesomeDB = database.db('urlshortener')
      let docs = myAwesomeDB.collection('urls');
     let highestRoute = 0;
-    docs.find({}).toArray((err, result) => {
-      for (let i = 0; i < result.length; i++ ){
-         if (result[i].route > highestRoute) {
-           highestRoute = result[i].route;
-         }
-       }
-    });
-      let obj = {originalURL: ogURL, shortURL: "https://safe-dash.glitch.me/" + ++highestRoute++, route: highestRoute++};
-     docs.insert(obj, (err, data) => {
+    docs.insert(obj, (err, data) => {
          if (err) throw err;
          console.log(JSON.stringify(obj));
      });
-
      database.close();
   });
   res.end();
