@@ -47,31 +47,35 @@ app.route('/')
 		  res.sendFile(process.cwd() + '/views/index.html');
     })
 
-app.route('/12345')
+app.route('/[0-9]*')
   .get(function(req, res) {
-  res.writeHead(302, {'Location': 'https://www.google.com'});
-  res.end();
-})
-
-mongo.connect(dburl, (err, database) => {
-  console.log('hi');
-      if (!err) {
-        console.log('hi');
-      }
+  
+  let urlRequest = url.parse(req.url, true);
+  let pathName = urlRequest.pathname;
+  let routeNum = pathName.slice(1, pathName.length);
+  
+  mongo.connect(dburl, (err, database) => {
      if (err) throw err;
     const myAwesomeDB = database.db('urlshortener')
      let docs = myAwesomeDB.collection('urls');
     docs.find({}).toArray((err, result) => {
+      console.log('creating routes');
        if (err) throw err;
-       app.route('/' + result.route).get((req, res) => {
-         res.writeHead(302, {'Location': result.originalUrl});
-          res.end();
-         console.log('route created');
-       });
+       for (let i = 0; i < result.length; i++ ){
+         console.log(result[i].route + " " + routeNum + result[i].originalURL);
+         if (result[i].route == routeNum) {
+           res.writeHead(302, {'Location': result[i].originalURL});
+            res.end();
+         }
+       }
    });
-
      database.close();
   });
+  res.status(404);
+  res.type('txt').send('Not found');
+})
+
+
 
 app.route('/new/*')
   .get((req, res) => {
@@ -81,12 +85,9 @@ app.route('/new/*')
   let ogURL = pathName.slice(pathName.indexOf(newRoutePath) + newRoutePath.length, pathName.length);
   console.log(ogURL);
   routes += 1;
-  let obj = {originalURL: ogURL, shortURL: `https://safe-dash.glitch.me/{routes}`, route: routes};
+  let obj = {originalURL: ogURL, shortURL: "https://safe-dash.glitch.me/" + routes, route: routes};
 
   mongo.connect(dburl, (err, database) => {
-      if (!err) {
-        console.log('hi');
-      }
      if (err) throw err;
     const myAwesomeDB = database.db('urlshortener')
      let docs = myAwesomeDB.collection('urls');
