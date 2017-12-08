@@ -39,7 +39,9 @@ app.route('/_api/package.json')
       res.type('txt').send(data.toString());
     });
   });
-  
+
+let routes = 0;
+
 app.route('/')
     .get(function(req, res) {
 		  res.sendFile(process.cwd() + '/views/index.html');
@@ -51,6 +53,21 @@ app.route('/12345')
   res.end();
 })
 
+mongo.connect(dburl, (err, database) => {
+      if (!err) {
+        console.log('hi');
+      }
+     if (err) throw err;
+    const myAwesomeDB = database.db('urlshortener')
+     let docs = myAwesomeDB.collection('urls');
+     // docs.insert(obj, (err, data) => {
+     //     if (err) throw err;
+     //     console.log(JSON.stringify(obj));
+     // });
+
+     database.close();
+  });
+
 app.route('/new/*')
   .get((req, res) => {
   let urlRequest = url.parse(req.url, true);
@@ -58,7 +75,8 @@ app.route('/new/*')
   let newRoutePath = "/new/";
   let ogURL = pathName.slice(pathName.indexOf(newRoutePath) + newRoutePath.length, pathName.length);
   console.log(ogURL);
-  let obj = {originalURL: ogURL, shortURL: "https://safe-dash.glitch.me/12345"};
+  routes += 1;
+  let obj = {originalURL: ogURL, shortURL: `https://safe-dash.glitch.me/{routes}`, route: routes};
 
   mongo.connect(dburl, (err, database) => {
       if (!err) {
