@@ -54,16 +54,21 @@ app.route('/12345')
 })
 
 mongo.connect(dburl, (err, database) => {
+  console.log('hi');
       if (!err) {
         console.log('hi');
       }
      if (err) throw err;
     const myAwesomeDB = database.db('urlshortener')
      let docs = myAwesomeDB.collection('urls');
-     // docs.insert(obj, (err, data) => {
-     //     if (err) throw err;
-     //     console.log(JSON.stringify(obj));
-     // });
+    docs.find({}).toArray((err, result) => {
+       if (err) throw err;
+       app.route('/' + result.route).get((req, res) => {
+         res.writeHead(302, {'Location': result.originalUrl});
+          res.end();
+         console.log('route created');
+       });
+   });
 
      database.close();
   });
@@ -85,15 +90,13 @@ app.route('/new/*')
      if (err) throw err;
     const myAwesomeDB = database.db('urlshortener')
      let docs = myAwesomeDB.collection('urls');
-     // docs.insert(obj, (err, data) => {
-     //     if (err) throw err;
-     //     console.log(JSON.stringify(obj));
-     // });
+     docs.insert(obj, (err, data) => {
+         if (err) throw err;
+         console.log(JSON.stringify(obj));
+     });
 
      database.close();
   });
-  res.writeHead(200, {'Content-Type': 'application/json' });
-  res.write(JSON.stringify(jsonTime));
   res.end();
 });
 
