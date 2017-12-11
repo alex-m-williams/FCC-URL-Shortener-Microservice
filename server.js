@@ -69,7 +69,6 @@ app.route('/[0-9]*')
   let urlRequest = url.parse(req.url, true);
   let pathName = urlRequest.pathname;
   let routeNum = pathName.slice(1, pathName.length);
-  
   mongo.connect(dburl, (err, database) => {
      if (err) throw err;
     const myAwesomeDB = database.db('urlshortener')
@@ -78,7 +77,6 @@ app.route('/[0-9]*')
        if (err) throw err;
        for (let i = 0; i < result.length; i++ ){
          if (result[i].route == routeNum) {
-           // res.writeHead(302, {'Location': result[i].originalURL});
            res.redirect(result[i].originalURL);
             res.end();
          }
