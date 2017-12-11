@@ -96,11 +96,9 @@ app.route('/new/*')
   let pathName = urlRequest.pathname;
   let newRoutePath = "/new/";
   let ogURL = pathName.slice(pathName.indexOf(newRoutePath) + newRoutePath.length, pathName.length);
-  console.log(ogURL);
   routes += 1;
   let obj;
   if (validateURL.isUri(ogURL)) {
-    console.log("valid url");
     obj = {originalURL: ogURL, shortURL: "https://safe-dash.glitch.me/" + routes, route: routes};
     mongo.connect(dburl, (err, database) => {
        if (err) throw err;
@@ -114,10 +112,11 @@ app.route('/new/*')
        database.close();
     });
   } else {
-    console.log("invalid url");
+    obj = {error: "Not a valid URL entered. You must use http or https."};
   }
   
-  
+  res.writeHead(200, {'Content-Type': 'application/json' });
+  res.write(JSON.stringify(obj));
   res.end();
 });
 
