@@ -65,7 +65,6 @@ app.route('/')
 
 app.route('/[0-9]*')
   .get(function(req, res) {
-  
   let urlRequest = url.parse(req.url, true);
   let pathName = urlRequest.pathname;
   let routeNum = pathName.slice(1, pathName.length);
