@@ -9,6 +9,7 @@ var fs = require('fs');
 var express = require('express');
 var app = express();
 const url = require('url');
+const validateURL = require('valid-url');
 
 
 const dburl = 'mongodb://fcc:fcc@ds133746.mlab.com:33746/urlshortener';
@@ -97,18 +98,26 @@ app.route('/new/*')
   let ogURL = pathName.slice(pathName.indexOf(newRoutePath) + newRoutePath.length, pathName.length);
   console.log(ogURL);
   routes += 1;
-  let obj = {originalURL: ogURL, shortURL: "https://safe-dash.glitch.me/" + routes, route: routes};
-  mongo.connect(dburl, (err, database) => {
-     if (err) throw err;
-    const myAwesomeDB = database.db('urlshortener')
-     let docs = myAwesomeDB.collection('urls');
-    let highestRoute = 0;
-    docs.insert(obj, (err, data) => {
-         if (err) throw err;
-         console.log(JSON.stringify(obj));
-     });
-     database.close();
-  });
+  let obj;
+  if (validateURL.isUri(ogURL)) {
+    console.log("valid url");
+    obj = {originalURL: ogURL, shortURL: "https://safe-dash.glitch.me/" + routes, route: routes};
+    mongo.connect(dburl, (err, database) => {
+       if (err) throw err;
+      const myAwesomeDB = database.db('urlshortener')
+       let docs = myAwesomeDB.collection('urls');
+      let highestRoute = 0;
+      docs.insert(obj, (err, data) => {
+           if (err) throw err;
+           console.log(JSON.stringify(obj));
+       });
+       database.close();
+    });
+  } else {
+    console.log("invalid url");
+  }
+  
+  
   res.end();
 });
 
